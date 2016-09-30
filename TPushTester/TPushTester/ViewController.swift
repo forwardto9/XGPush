@@ -51,7 +51,8 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     private var certificate:SecCertificateRef?
     private var identity:SecIdentity?
     private var pushDeviceToken:String = ""
-    private var pushPayload:String     = ""
+//    private var pushPayload:String     = ""
+    private var pushMessage:String     = ""
     private var pushCertificatePath    = ""
     private var pushCertificatePasswd  = ""
     private var pushHost               = ""
@@ -63,6 +64,8 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     // 2: distribution 1:developement
     private var xgPushEnviromentIntValue:UInt = 1
     private var xgPushManagerQQ = ""
+    
+    private var mouseTrackingArea:NSTrackingArea!
     
     
     override func viewDidLoad() {
@@ -77,9 +80,12 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         }
         
         xgPushButtonDisplay()
+        
+        mouseTrackingArea = NSTrackingArea(rect: chooseCertificateButton.frame, options:[.MouseEnteredAndExited, .ActiveAlways], owner: self, userInfo: ["key":"value"])
+        self.view.addTrackingArea(mouseTrackingArea)
         // Do any additional setup after loading the view.
     }
-
+    
     override func viewWillAppear() {
         super.viewWillAppear()
         pushTokenTextField.becomeFirstResponder()
@@ -142,51 +148,60 @@ class ViewController: NSViewController, NSTextFieldDelegate {
                     return
                 }
                 
-                if type == .PEM {
-                    let certificateData = NSData.init(contentsOfFile: path as String)?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithCarriageReturn)
-                    let ts = String(time(nil))
-                    let type = String(xgPushEnviromentIntValue)
-                    var sign  = "!#dataeye*&@!23ne5=^82"
-                    let source = "dataeye" // defualt, juhe, cmstop,etc.
-                    var paramsWithOutCertificate = ["app_id":accessID, "type":type, "qq":xgPushManagerQQ, "source":source, "ts":ts]
-                    let p  = paramsWithOutCertificate.sort {$0.0 < $1.0}
-                    for (k, v) in p {
-                        sign = sign + k + "=" + v
+                if type == .P12 {
+                    var enviromentString = ""
+                    if developerHostButton.state == NSOnState {
+                        enviromentString = "Developer"
+                    } else if distributionHostButton.state == NSOnState {
+                        enviromentString = "Distribution"
                     }
-                    let sig = md5(sign)
-                    
-                    paramsWithOutCertificate["sig"] = sig
-                    paramsWithOutCertificate["certfile"] = certificateData!
-                    let xgCertificateUploadURL = "http://api.xg.qq.com/certfile/update_apns_cert_pub"
-                    let request = NSMutableURLRequest(URL: NSURL(string: xgCertificateUploadURL)!, cachePolicy: NSURLRequestCachePolicy.UseProtocolCachePolicy, timeoutInterval: 30)
-                    request.HTTPMethod  = "POST"
-                    var parameterString = ""
-                    for (k, v) in paramsWithOutCertificate {
-                        parameterString = parameterString + k + "=" + v + "&"
-                    }
-                    
-                    parameterString = (parameterString as NSString).substringToIndex(parameterString.characters.count - 1)
-                    
-                    request.HTTPBody = parameterString.dataUsingEncoding(NSUTF8StringEncoding)
-                    NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, error) in
-                        if data != nil {
-                            let returnData = try! NSJSONSerialization.JSONObjectWithData(data!, options:.MutableContainers)
-                            var uploadResultInfo = ""
-                            if (returnData["code"] as! NSNumber).integerValue == 0 {
-                                uploadResultInfo = "Upload certificate OK!"
-                            } else {
-                                uploadResultInfo = returnData["info"] as! String
-                            }
-                            dispatch_async(dispatch_get_main_queue(), {
-                                self.showAlert(uploadResultInfo)
-                            })
-                            
-                        }
-                    }).resume()
-                    
+                    path = self.convertP12ToPEM(pushCertificatePath, password: pushCertificatePasswd, pemEnviromentString:enviromentString)!
+                } else if type == .PEM {
                 } else {
-                    showAlert("Invalid certificate!")
+                    showAlert("Invalid certificate! Please")
+                    return
                 }
+                
+                let certificateData = NSData.init(contentsOfFile: path as String)?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithCarriageReturn)
+                let ts = String(time(nil))
+                let type = String(xgPushEnviromentIntValue)
+                var sign  = "!#dataeye*&@!23ne5=^82"
+                let source = "dataeye" // defualt, juhe, cmstop,etc.
+                var paramsWithOutCertificate = ["app_id":accessID, "type":type, "qq":xgPushManagerQQ, "source":source, "ts":ts]
+                let p  = paramsWithOutCertificate.sort {$0.0 < $1.0}
+                for (k, v) in p {
+                    sign = sign + k + "=" + v
+                }
+                let sig = md5(sign)
+                
+                paramsWithOutCertificate["sig"] = sig
+                paramsWithOutCertificate["certfile"] = certificateData!
+                let xgCertificateUploadURL = "http://api.xg.qq.com/certfile/update_apns_cert_pub"
+                let request = NSMutableURLRequest(URL: NSURL(string: xgCertificateUploadURL)!, cachePolicy: NSURLRequestCachePolicy.UseProtocolCachePolicy, timeoutInterval: 30)
+                request.HTTPMethod  = "POST"
+                var parameterString = ""
+                for (k, v) in paramsWithOutCertificate {
+                    parameterString = parameterString + k + "=" + v + "&"
+                }
+                
+                parameterString = (parameterString as NSString).substringToIndex(parameterString.characters.count - 1)
+                
+                request.HTTPBody = parameterString.dataUsingEncoding(NSUTF8StringEncoding)
+                NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, error) in
+                    if data != nil {
+                        let returnData = try! NSJSONSerialization.JSONObjectWithData(data!, options:.MutableContainers)
+                        var uploadResultInfo = ""
+                        if (returnData["code"] as! NSNumber).integerValue == 0 {
+                            uploadResultInfo = "Upload certificate OK!"
+                        } else {
+                            uploadResultInfo = returnData["info"] as! String
+                        }
+                        dispatch_async(dispatch_get_main_queue(), {
+                            self.showAlert(uploadResultInfo)
+                        })
+                        
+                    }
+                }).resume()
             }
         }
         
@@ -198,16 +213,23 @@ class ViewController: NSViewController, NSTextFieldDelegate {
             return;
         }
         
-        if pushMessageTextField.stringValue.characters.count == 0 {
+        var pushPayload:String = ""
+        if pushMessage.characters.count == 0 {
             showAlert("Push message is empty!")
             return;
+        } else {
+            let pushMessageDate = NSDate()
+            let dateFormatter = NSDateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            let messageDateString = dateFormatter.stringFromDate(pushMessageDate)
+            let message = messageDateString + "\\n" + pushMessage
+            pushPayload = "{\"aps\":{\"alert\":\"" + message + "\",\"badge\":1}}"
         }
         
         
         if apnsServerButton.state == NSOnState {
             //
         }
-        
         if xgServerButton.state == NSOnState {
             if accessID.characters.count == 0 {
                 showAlert("XG Push App acccess ID is incorrect")
@@ -253,25 +275,14 @@ class ViewController: NSViewController, NSTextFieldDelegate {
                 if connectResult == noErr {
                     let pushResult =  OCPush.pushToDeviceToken(pushDeviceToken, payload: pushPayload, context: context)
                     if pushResult == noErr {
-                        let pemOutPath = (pushCertificatePath as NSString).stringByDeletingLastPathComponent
-                        var pemType = ""
-                        if developerHostButton.state == 1 {
-                            pemType = "Developer"
+                        var enviromentString = ""
+                        if developerHostButton.state == NSOnState {
+                            enviromentString = "Developer"
+                        } else if distributionHostButton.state == NSOnState {
+                            enviromentString = "Distribution"
                         }
-                        if distributionHostButton.state == 1 {
-                            pemType = "Distribution"
-                        }
-                        var shellString = "openssl pkcs12 -in " + pushCertificatePath + " -out " + pemOutPath + "/XG" + pemType + "PushCertificate.pem -nodes "
-                        if !pushCertificatePasswd.isEmpty {
-                            shellString = shellString + "-passin pass:" + pushCertificatePasswd
-                        }
-                        let result = shell(shellString)
                         
-                        if result.exitCode == 0 {
-                            showAlert("Certificate is OK,Push one message!\nCreate XG push certificate done!")
-                        } else {
-                            showAlert("Create XG push certificate failed!")
-                        }
+                        self.convertP12ToPEM(pushCertificatePath, password: pushCertificatePasswd, pemEnviromentString:enviromentString)
                         
                     } else {
                         showAlert("APNS Error!")
@@ -429,7 +440,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     override func controlTextDidChange(obj: NSNotification) {
         let textField:NSTextField = obj.object as! NSTextField
         if textField == pushMessageTextField {
-            pushPayload = "{\"aps\":{\"alert\":\"" + (textField.stringValue) + "\",\"badge\":1}}"
+            pushMessage = textField.stringValue
         }
         if textField == pushTokenTextField {
             pushDeviceToken = textField.stringValue
@@ -496,6 +507,35 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         }
         
         return digestHex
+    }
+    
+    
+    override func mouseEntered(theEvent: NSEvent) {
+        print("area rect = \(NSEvent.mouseLocation())")
+        if pushCertificatePath.characters.count == 0 {
+            pushCertificatePathField.placeholderString = "Upload your push certificate"
+        }
+        
+    }
+    override func mouseExited(theEvent: NSEvent) {
+        pushCertificatePathField.placeholderString = nil
+    }
+    
+    func convertP12ToPEM(filePath:String, password:String, pemEnviromentString:String) -> String? {
+        let pemOutPath = (filePath as NSString).stringByDeletingLastPathComponent
+        var shellString = "openssl pkcs12 -in " + filePath + " -out " + pemOutPath + "/XG" + pemEnviromentString + "PushCertificate.pem -nodes "
+        if !password.isEmpty {
+            shellString = shellString + "-passin pass:" + password
+        }
+        let result = shell(shellString)
+        
+        if result.exitCode == 0 {
+            showAlert("Certificate is OK,Push one message!\nCreate XG push certificate done!")
+            return result.output
+        } else {
+            showAlert("Push your message failed!")
+            return nil
+        }
     }
     
 }
