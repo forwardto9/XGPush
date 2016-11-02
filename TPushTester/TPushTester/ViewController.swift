@@ -298,7 +298,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
                         }
                         
                         self.convertP12ToPEM(pushCertificatePath, password: pushCertificatePasswd, pemEnviromentString:enviromentString)
-                        
+                        showAlert("Certificate is OK,Push one message!\nCreate XG Push Certificate done!")
                     } else {
                         showAlert("APNS Error!")
                     }
@@ -377,16 +377,13 @@ class ViewController: NSViewController, NSTextFieldDelegate {
             NSLog("SecKeychainOpen(): %d", result);
         }
         
-
-        
-        let certificateData = NSData(contentsOfFile: pushCertificatePath);
-        self.certificate = SecCertificateCreateWithData(kCFAllocatorDefault, certificateData!)
-        if self.certificate == nil {
-            return errSecCertificateCannotOperate
-        }
-        
         var certificates:CFArrayRef!
         if type == PushCertificateFileType.CER {
+            let certificateData = NSData(contentsOfFile: pushCertificatePath);
+            self.certificate = SecCertificateCreateWithData(kCFAllocatorDefault, certificateData!)
+            if self.certificate == nil {
+                return errSecCertificateCannotOperate
+            }
             // Create identity.
             result = SecIdentityCreateWithCertificate(keychain, certificate!, &identity);
             NSLog("SecIdentityCreateWithCertificate(): %d", result);
@@ -395,6 +392,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
             // Set client certificate.
             certificates = CFArrayCreate(nil, &id, 1, nil)
         }
+        
         if type == PushCertificateFileType.P12 {
             // Set client certificate.
             let identity = OCPush.getSecIdentityRefFromFile(pushCertificatePath, password: pushCertificatePasswd, statusCode: &result)
@@ -408,22 +406,18 @@ class ViewController: NSViewController, NSTextFieldDelegate {
                 if result == errSecDecode {
                     showAlert("Can not parse certificate!")
                 }
-                
-                return result
             }
         }
 
-        if (certificates == nil) {
-            return result
-        }
-        
-        result = SSLSetCertificate(context, certificates);
-        NSLog("SSLSetCertificate(): %d", result);
-        result = SSLHandshake(context);
-        // Perform SSL handshake.
-        while(result == errSSLWouldBlock) {
+        if (certificates != nil) {
+            result = SSLSetCertificate(context, certificates);
+            NSLog("SSLSetCertificate(): %d", result);
             result = SSLHandshake(context);
-            NSLog("SSLHandshake(): %d", result);
+            // Perform SSL handshake.
+            while(result == errSSLWouldBlock) {
+                result = SSLHandshake(context);
+                NSLog("SSLHandshake(): %d", result);
+            }
         }
         
         return result
