@@ -265,9 +265,9 @@ void token2bytes(const char *token, char *bytes){
 //    return privateKeyRef;
 }
 
-+ (void)pushFromXGServerWithDeviceToken:(NSString *)deviceToken accessID:(NSString *)accessID secretKey:(NSString *)secretKey payload:(NSString *)payload enviroment:(NSString *)enviroment completion:(void (^) (NSString *message, NSInteger statusCode))completion {
-    NSString *urlString = @"http://openapi.xg.qq.com/v2/push/single_device";
-    
+//+ (void)pushFromXGServerWithDeviceToken:(NSString *)deviceToken accessID:(NSString *)accessID secretKey:(NSString *)secretKey payload:(NSString *)payload enviroment:(NSString *)enviroment completion:(void (^) (NSString *message, NSInteger statusCode))completion {
+//    NSString *urlString = @"http://openapi.xg.qq.com/v2/push/single_device";
++ (void)pushFromXGServerWithDeviceToken:(NSString *)deviceToken accessID:(NSString *)accessID secretKey:(NSString *)secretKey payload:(NSString *)payload enviroment:(NSString *)enviroment server:(NSString *)urlString completion:(void (^)(NSString *, NSInteger))completion {
     NSString *xgServerPushHost   = @"openapi.xg.qq.com";
     NSString * xgServerPushPath   =  @"/v2/push/single_device";
     

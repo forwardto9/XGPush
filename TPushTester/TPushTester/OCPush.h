@@ -27,7 +27,9 @@
 - (void)reset;
 - (int)pushMessageToDeviceToken:(NSString *)deviceToken payload:(NSString *)payload fromHost:(NSString *)host withPEMFile:(NSString *)filePath;
 
-+ (void)pushFromXGServerWithDeviceToken:(NSString *)deviceToken accessID:(NSString *)accessID secretKey:(NSString *)secretKey payload:(NSString *)payload enviroment:(NSString *)enviroment completion:(void (^) (NSString *message, NSInteger statusCode))completion;
+//+ (void)pushFromXGServerWithDeviceToken:(NSString *)deviceToken accessID:(NSString *)accessID secretKey:(NSString *)secretKey payload:(NSString *)payload enviroment:(NSString *)enviroment completion:(void (^) (NSString *message, NSInteger statusCode))completion;
+
++ (void)pushFromXGServerWithDeviceToken:(NSString *)deviceToken accessID:(NSString *)accessID secretKey:(NSString *)secretKey payload:(NSString *)payload enviroment:(NSString *)enviroment server:(NSString *)url completion:(void (^) (NSString *message, NSInteger statusCode))completion;
 
 @end
 

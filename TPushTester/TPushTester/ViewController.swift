@@ -42,6 +42,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     @IBOutlet weak var secretKeyTextFiled: NSTextField!
     @IBOutlet weak var managerQQLabel: NSTextField!
     @IBOutlet weak var managerQQTextField: NSTextField!
+    @IBOutlet weak var xgTestCheckButton: NSButton!
     
     
     
@@ -70,6 +71,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         super.viewDidLoad()
         certificatePasswordTextField.hidden = true
         certificatePasswordLabel.hidden     = true
+        xgTestCheckButton.hidden            = true
         if developerHostButton.state == 1 {
             pushHost = developerPushHost
         }
@@ -249,7 +251,14 @@ class ViewController: NSViewController, NSTextFieldDelegate {
                     let returnData = try! NSJSONSerialization.JSONObjectWithData(data!, options:.MutableContainers)
                     var uploadResultInfo = ""
                     if (returnData["code"] as! NSNumber).integerValue == 0 {
-                        OCPush.pushFromXGServerWithDeviceToken(self.pushDeviceToken, accessID: self.accessID, secretKey: self.secretKey, payload:pushPayload, enviroment:String(self.apnsPushEnviromentIntValue), completion: { (message, code) in
+                        var url:String!
+                        if self.xgTestCheckButton.state == 1 {
+                            url = "http://testopenapi.xg.qq.com/v2/push/single_device"
+                            
+                        } else {
+                            url = "http://openapi.xg.qq.com/v2/push/single_device"
+                        }
+                        OCPush.pushFromXGServerWithDeviceToken(self.pushDeviceToken, accessID: self.accessID, secretKey: self.secretKey, payload:pushPayload, enviroment:String(self.apnsPushEnviromentIntValue), server: url, completion: { (message, code) in
                             if code == 0 {
                                 self.showAlert("XG Push a message done!")
                             } else {
@@ -499,6 +508,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         secretKeyTextFiled.hidden = Bool.init(apnsServerButton.state)
         managerQQLabel.hidden     = Bool.init(apnsServerButton.state)
         managerQQTextField.hidden = Bool.init(apnsServerButton.state)
+        xgTestCheckButton.hidden  = Bool.init(apnsServerButton.state)
     }
     
     func md5(string: String) -> String {
