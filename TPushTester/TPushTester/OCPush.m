@@ -267,9 +267,11 @@ void token2bytes(const char *token, char *bytes){
 
 //+ (void)pushFromXGServerWithDeviceToken:(NSString *)deviceToken accessID:(NSString *)accessID secretKey:(NSString *)secretKey payload:(NSString *)payload enviroment:(NSString *)enviroment completion:(void (^) (NSString *message, NSInteger statusCode))completion {
 //    NSString *urlString = @"http://openapi.xg.qq.com/v2/push/single_device";
-+ (void)pushFromXGServerWithDeviceToken:(NSString *)deviceToken accessID:(NSString *)accessID secretKey:(NSString *)secretKey payload:(NSString *)payload enviroment:(NSString *)enviroment server:(NSString *)urlString completion:(void (^)(NSString *, NSInteger))completion {
-    NSString *xgServerPushHost   = @"openapi.xg.qq.com";
++ (void)pushFromXGServerWithDeviceToken:(NSString *)deviceToken accessID:(NSString *)accessID secretKey:(NSString *)secretKey payload:(NSString *)payload enviroment:(NSString *)enviroment server:(NSString *)host completion:(void (^)(NSString *, NSInteger))completion {
+    
+    NSString *xgServerPushHost   = host;
     NSString * xgServerPushPath   =  @"/v2/push/single_device";
+    NSString *urlString = [NSString stringWithFormat:@"%@%@%@", @"http://", host, xgServerPushPath];
     
     NSMutableDictionary *params = [NSMutableDictionary new];
     [params setObject:[NSString stringWithFormat:@"%ld", time(NULL)] forKey:@"timestamp"];
@@ -296,6 +298,8 @@ void token2bytes(const char *token, char *bytes){
     }
     
     [signStrting appendString:secretKey];
+    
+//    signStrting = [NSMutableString stringWithString:@"POSTtestopenapi.xg.qq.com/v2/push/single_deviceaccess_id=2200022728device_token=0c8023209a1440c77ac71ef93ac632eb86e45665d78f0d3777840541106f949fenvironment=2message={\"aps\":{\"alert\":\"2016-11-15 18:15:04\nfuck\",\"badge\":1}}message_type=0timestamp=1479204904f63ce4ce1c5c31eef138453a4ecd7b39"];
     
     // md5
     const char *cStr = [signStrting UTF8String];

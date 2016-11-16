@@ -251,14 +251,14 @@ class ViewController: NSViewController, NSTextFieldDelegate {
                     let returnData = try! NSJSONSerialization.JSONObjectWithData(data!, options:.MutableContainers)
                     var uploadResultInfo = ""
                     if (returnData["code"] as! NSNumber).integerValue == 0 {
-                        var url:String!
+                        var xgHost:String!
                         if self.xgTestCheckButton.state == 1 {
-                            url = "http://testopenapi.xg.qq.com/v2/push/single_device"
+                            xgHost = "testopenapi.xg.qq.com"
                             
                         } else {
-                            url = "http://openapi.xg.qq.com/v2/push/single_device"
+                            xgHost = "openapi.xg.qq.com"
                         }
-                        OCPush.pushFromXGServerWithDeviceToken(self.pushDeviceToken, accessID: self.accessID, secretKey: self.secretKey, payload:pushPayload, enviroment:String(self.apnsPushEnviromentIntValue), server: url, completion: { (message, code) in
+                        OCPush.pushFromXGServerWithDeviceToken(self.pushDeviceToken, accessID: self.accessID, secretKey: self.secretKey, payload:pushPayload, enviroment:String(self.apnsPushEnviromentIntValue), server: xgHost, completion: { (message, code) in
                             if code == 0 {
                                 self.showAlert("XG Push a message done!")
                             } else {
