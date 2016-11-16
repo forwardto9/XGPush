@@ -445,9 +445,11 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         OCPush.closeSocket(socket)
     }
     func showAlert(message:String) -> Void {
-        let alert = NSAlert()
-        alert.messageText = message
-        alert.runModal()
+		dispatch_async(dispatch_get_main_queue()) {
+	        let alert = NSAlert()
+	        alert.messageText = message
+	        alert.runModal()
+		}
     }
     
     // MARK: NSTextFiledDelegate
