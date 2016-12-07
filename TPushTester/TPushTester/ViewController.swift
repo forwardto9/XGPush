@@ -51,7 +51,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     private var keychain:SecKeychain?
     private var certificate:SecCertificateRef?
     private var identity:SecIdentity?
-    private var pushDeviceToken:String = ""
+    private var pushDeviceToken:String!
 //    private var pushPayload:String     = ""
     private var pushMessage:String     = ""
     private var pushCertificatePath    = ""
@@ -59,12 +59,12 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     private var pushHost               = ""
     // 1: distribution 2:developement
     private var apnsPushEnviromentIntValue:UInt = 2
-    private var accessID = ""
-    private var secretKey = ""
+    private var accessID:String!
+    private var secretKey:String!
     
     // 2: distribution 1:developement
     private var xgPushEnviromentIntValue:UInt = 1
-    private var xgPushManagerQQ = ""
+    private var xgPushManagerQQ:String!
     private var mouseTrackingArea:NSTrackingArea!
     
     override func viewDidLoad() {
@@ -83,7 +83,23 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         
         mouseTrackingArea = NSTrackingArea(rect: chooseCertificateButton.frame, options:[.MouseEnteredAndExited, .ActiveAlways], owner: self, userInfo: ["key":"value"])
         self.view.addTrackingArea(mouseTrackingArea)
-        // Do any additional setup after loading the view.
+         pushDeviceToken = NSUserDefaults.standardUserDefaults().objectForKey(XGiOSToken) as? String
+        if pushDeviceToken != nil {
+            pushTokenTextField.stringValue = pushDeviceToken
+        }
+        accessID = NSUserDefaults.standardUserDefaults().objectForKey(XGAccessIDKey) as? String
+        if accessID != nil {
+            accessIDTextField.stringValue = accessID
+        }
+        secretKey = NSUserDefaults.standardUserDefaults().objectForKey(XGSecretKey) as? String
+        if secretKey != nil {
+            secretKeyTextFiled.stringValue = secretKey
+        }
+        xgPushManagerQQ = NSUserDefaults.standardUserDefaults().objectForKey(XGAccountQQKey) as? String
+        if xgPushManagerQQ != nil {
+            managerQQTextField.stringValue = xgPushManagerQQ
+        }
+        
     }
     
     override func viewWillAppear() {
@@ -460,6 +476,8 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         }
         if textField == pushTokenTextField {
             pushDeviceToken = textField.stringValue
+            NSUserDefaults.standardUserDefaults().setObject(pushMessage, forKey: XGiOSToken)
+            NSUserDefaults.standardUserDefaults().synchronize()
         }
         
         if textField == certificatePasswordTextField {
@@ -468,12 +486,18 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         
         if textField == accessIDTextField {
             accessID = textField.stringValue
+            NSUserDefaults.standardUserDefaults().setObject(accessID, forKey: XGAccessIDKey)
+            NSUserDefaults.standardUserDefaults().synchronize()
         }
         if textField == secretKeyTextFiled {
             secretKey = textField.stringValue
+            NSUserDefaults.standardUserDefaults().setObject(secretKey, forKey: XGSecretKey)
+            NSUserDefaults.standardUserDefaults().synchronize()
         }
         if textField == managerQQTextField {
             xgPushManagerQQ = textField.stringValue
+            NSUserDefaults.standardUserDefaults().setObject(xgPushManagerQQ, forKey: XGAccountQQKey)
+            NSUserDefaults.standardUserDefaults().synchronize()
         }
         
     }

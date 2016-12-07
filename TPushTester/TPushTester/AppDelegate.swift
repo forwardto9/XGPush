@@ -8,6 +8,11 @@
 
 import Cocoa
 
+let XGAccessIDKey = "XG.AccessID"
+let XGAccountQQKey = "XG.Account.QQ"
+let XGSecretKey    = "XG.SecretKey"
+let XGiOSToken     = "XG.iOS.Token"
+
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
