@@ -1,0 +1,6 @@
+framework module MTACocoa {
+  umbrella header "MTACocoa.h"
+
+  export *
+  module * { export * }
+}

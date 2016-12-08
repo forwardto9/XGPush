@@ -4,7 +4,6 @@
 
 #import "ioSock.h"
 #import "OCPush.h"
-#import "MTA.h"
-#import "MTAConfig.h"
 
 #import <CommonCrypto/CommonCrypto.h>
+#import <MTACocoa/MTACocoa.h>

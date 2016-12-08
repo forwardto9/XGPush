@@ -21,10 +21,11 @@
 		C276AE741CF5DD94005EF08C /* OCPush.m in Sources */ = {isa = PBXBuildFile; fileRef = C276AE731CF5DD94005EF08C /* OCPush.m */; };
 		C278D9D71D13CFC2005BEFF6 /* AboutWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C278D9D51D13CFC2005BEFF6 /* AboutWindowController.swift */; };
 		C278D9D81D13CFC2005BEFF6 /* AboutWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C278D9D61D13CFC2005BEFF6 /* AboutWindowController.xib */; };
+		C299D4281DF935EC00A858A1 /* MTACocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C299D4271DF935EC00A858A1 /* MTACocoa.framework */; };
+		C299D42A1DF935F500A858A1 /* MTACocoa.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C299D4271DF935EC00A858A1 /* MTACocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C2CC0AAB1CFC7D1100B6F15A /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C2CC0AA91CFC7D1100B6F15A /* libcrypto.a */; };
 		C2CC0AAC1CFC7D1100B6F15A /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C2CC0AAA1CFC7D1100B6F15A /* libssl.a */; };
 		C2F260D51D2127F30060B4C1 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = C2F260D41D2127F30060B4C1 /* logo.png */; };
-		C2F261281D212EB60060B4C1 /* libCocoaMTA.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C2F261251D212EB60060B4C1 /* libCocoaMTA.a */; };
 		C2F2612A1D2131C60060B4C1 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C2F261291D2131C60060B4C1 /* libsqlite3.tbd */; };
 		C2F2612C1D2132700060B4C1 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C2F2612B1D2132700060B4C1 /* libz.tbd */; };
 /* End PBXBuildFile section */
@@ -36,6 +37,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				C299D42A1DF935F500A858A1 /* MTACocoa.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -62,6 +64,7 @@
 		C276AE751CF5DDAB005EF08C /* OCPush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCPush.h; sourceTree = "<group>"; };
 		C278D9D51D13CFC2005BEFF6 /* AboutWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutWindowController.swift; sourceTree = "<group>"; };
 		C278D9D61D13CFC2005BEFF6 /* AboutWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AboutWindowController.xib; sourceTree = "<group>"; };
+		C299D4271DF935EC00A858A1 /* MTACocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MTACocoa.framework; sourceTree = "<group>"; };
 		C2CC0AA91CFC7D1100B6F15A /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		C2CC0AAA1CFC7D1100B6F15A /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
 		C2CC0AB21CFD2A7100B6F15A /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
@@ -138,9 +141,6 @@
 		C2CC0AF91CFD2A7100B6F15A /* x509_vfy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509_vfy.h; sourceTree = "<group>"; };
 		C2CC0AFA1CFD2A7100B6F15A /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
 		C2F260D41D2127F30060B4C1 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
-		C2F261251D212EB60060B4C1 /* libCocoaMTA.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libCocoaMTA.a; sourceTree = "<group>"; };
-		C2F261261D212EB60060B4C1 /* MTA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTA.h; sourceTree = "<group>"; };
-		C2F261271D212EB60060B4C1 /* MTAConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTAConfig.h; sourceTree = "<group>"; };
 		C2F261291D2131C60060B4C1 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		C2F2612B1D2132700060B4C1 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -155,10 +155,10 @@
 				C2F2612A1D2131C60060B4C1 /* libsqlite3.tbd in Frameworks */,
 				C20AFD7A1CF443A700DFCA82 /* AppKit.framework in Frameworks */,
 				C20AFD7B1CF443A700DFCA82 /* Cocoa.framework in Frameworks */,
-				C2F261281D212EB60060B4C1 /* libCocoaMTA.a in Frameworks */,
 				C2CC0AAC1CFC7D1100B6F15A /* libssl.a in Frameworks */,
 				C2CC0AAB1CFC7D1100B6F15A /* libcrypto.a in Frameworks */,
 				C20AFD7C1CF443A700DFCA82 /* CoreData.framework in Frameworks */,
+				C299D4281DF935EC00A858A1 /* MTACocoa.framework in Frameworks */,
 				C20AFD7D1CF443A700DFCA82 /* Foundation.framework in Frameworks */,
 				C20AFD7E1CF443A700DFCA82 /* Security.framework in Frameworks */,
 			);
@@ -314,9 +314,7 @@
 		C2F261241D212EB60060B4C1 /* MTA */ = {
 			isa = PBXGroup;
 			children = (
-				C2F261251D212EB60060B4C1 /* libCocoaMTA.a */,
-				C2F261261D212EB60060B4C1 /* MTA.h */,
-				C2F261271D212EB60060B4C1 /* MTAConfig.h */,
+				C299D4271DF935EC00A858A1 /* MTACocoa.framework */,
 			);
 			path = MTA;
 			sourceTree = "<group>";
@@ -508,6 +506,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TPushTester",
+					"$(PROJECT_DIR)/TPushTester/MTA",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/TPushTester/openssl/include/openssl/",
@@ -539,6 +538,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TPushTester",
+					"$(PROJECT_DIR)/TPushTester/MTA",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/TPushTester/openssl/include/openssl/",

@@ -35,8 +35,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
-        // mta
-        MTA.startWithAppkey("INV5D6C3E7NR")
+        MTAPro.startWithAppKey("INV5D6C3E7NR")
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {
