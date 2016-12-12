@@ -28,6 +28,7 @@
 		C2F260D51D2127F30060B4C1 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = C2F260D41D2127F30060B4C1 /* logo.png */; };
 		C2F2612A1D2131C60060B4C1 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C2F261291D2131C60060B4C1 /* libsqlite3.tbd */; };
 		C2F2612C1D2132700060B4C1 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C2F2612B1D2132700060B4C1 /* libz.tbd */; };
+		C2FA4A011DFE4EBD00B1D56A /* CertificateUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FA4A001DFE4EBD00B1D56A /* CertificateUploader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -143,6 +144,7 @@
 		C2F260D41D2127F30060B4C1 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
 		C2F261291D2131C60060B4C1 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		C2F2612B1D2132700060B4C1 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		C2FA4A001DFE4EBD00B1D56A /* CertificateUploader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CertificateUploader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,6 +211,7 @@
 				C276AE731CF5DD94005EF08C /* OCPush.m */,
 				C276AE751CF5DDAB005EF08C /* OCPush.h */,
 				C2F260D41D2127F30060B4C1 /* logo.png */,
+				C2FA4A001DFE4EBD00B1D56A /* CertificateUploader.swift */,
 			);
 			path = TPushTester;
 			sourceTree = "<group>";
@@ -393,6 +396,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C20AFD741CF4404C00DFCA82 /* ioSock.c in Sources */,
+				C2FA4A011DFE4EBD00B1D56A /* CertificateUploader.swift in Sources */,
 				C278D9D71D13CFC2005BEFF6 /* AboutWindowController.swift in Sources */,
 				C276AE741CF5DD94005EF08C /* OCPush.m in Sources */,
 				C20AFD631CF439FB00DFCA82 /* ViewController.swift in Sources */,

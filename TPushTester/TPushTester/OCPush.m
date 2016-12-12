@@ -17,6 +17,12 @@
 #import "openssl/x509.h"
 #import "OCPush.h"
 #include <CommonCrypto/CommonDigest.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
 
 @interface OCPush() {
     SSL_CTX                *m_pctx;
@@ -67,10 +73,11 @@
 
 }
 
-- (int)pushMessageToDeviceToken:(NSString *)deviceToken payload:(NSString *)payload fromHost:(NSString *)host withPEMFile:(NSString *)filePath{
+//- (int)pushMessageToDeviceToken:(NSString *)deviceToken payload:(NSString *)payload fromHost:(NSString *)host withPEMFile:(NSString *)filePath {
+- (int)pushMessageToDeviceToken:(NSString *)deviceToken payload:(NSString *)payload fromHost:(NSString *)host port:(NSUInteger)port withPEMFile:(NSString *)filePath {
+
     const char *token = [deviceToken UTF8String];
     const char *payloadString = [payload UTF8String];
-    const char *hostString = [host UTF8String];
     const char *file = [filePath UTF8String];
     
     /*
@@ -94,31 +101,106 @@
         printf("Error loading private key from file\n");
         return -2;
     }
-    bio = BIO_new_connect(hostString);
-    if (!bio) {
-        printf("Error creating connection BIO\n");
-        return -3;
+    
+#if 1
+    struct sockaddr_in pin;
+    struct hostent *nlp_host;
+    int sock;
+    char host_name[256] = {0};
+    
+    //初始化主机名和端口。主机名可以是IP，也可以是可被解析的名称
+    strcpy(host_name, [host UTF8String]);
+    //解析域名，如果是IP则不用解析，如果出错，显示错误信息
+    while ((nlp_host = gethostbyname(host_name)) == 0) {
+        return 2;// host is incorrect
     }
-    if (BIO_do_connect(bio) <= 0) {
-        printf("Error connection to remote machine\n");
-        return -4;
+    //设置pin变量，包括协议、地址、端口等，此段可直接复制到自己的程序中
+    bzero(&pin, sizeof(pin));
+    pin.sin_family      = AF_INET; //AF_INET表示使用IPv4
+    pin.sin_addr.s_addr = htonl(INADDR_ANY);
+    pin.sin_addr.s_addr = ((struct in_addr *)(nlp_host->h_addr))->s_addr;
+    pin.sin_port        = htons(port);
+    
+    //建立socket
+    sock = socket(AF_INET,SOCK_STREAM, 0);
+    
+    fcntl(sock, F_SETFL, O_NONBLOCK); // 设置socket非堵塞，这样会导致connect函数很快返回
+    int result = connect(sock, (struct sockaddr *)&pin, sizeof(pin));
+    if (result == 0) {
+        // 可以连接
+    } else { // 不可以连接
+        fd_set fdset;
+        struct timeval timeout = {1, 0};
+        FD_ZERO(&fdset);
+        FD_SET(sock, &fdset);
+        // 判断socket是不是可读
+        if (select(sock + 1, NULL, &fdset, NULL, &timeout) == 1) {
+            int so_error;
+            socklen_t len = sizeof(so_error);
+            getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &len);
+            if (so_error == 0) { // 说明socket是可以读取的
+                int ul = 0;
+                fcntl(sock, F_SETFL, &ul); // 重置socket的可阻塞
+                close(sock);
+                
+                // 重新建立socket
+                sock = socket(AF_INET, SOCK_STREAM, 0);
+                
+                connect(sock, (struct sockaddr *)&pin, sizeof(pin));
+            } else {
+                close(sock);
+                return 2;
+            }
+        } else {
+            close( sock);
+            return 2;
+        }
     }
+    
     if (!(m_pssl = SSL_new(m_pctx))) {
         printf("Error creating an SSL contexxt\n");
         return -5;
     }
     
+    SSL_set_fd(m_pssl, sock);
+    BIO *sslsock = BIO_new_socket(sock, BIO_NOCLOSE);
+    SSL_set_bio(m_pssl, sslsock, sslsock);
+#else
+    const char *hostString = [host UTF8String];
+    bio = BIO_new_connect(hostString);
+    if (!bio) {
+        printf("Error creating connection BIO\n");
+        return -3;
+    }
+    NSDate *date1 = [NSDate date];
+    if (BIO_do_connect(bio) <= 0) {
+        printf("Error connection to remote machine\n");
+        NSDate *date2 = [NSDate date];
+        NSLog(@"cost time is %f", [date2 timeIntervalSinceDate:date1]);
+        return -4;
+    }
+    NSDate *date3 = [NSDate date];
+    
+    NSTimeInterval ts = [date3 timeIntervalSinceDate:date1];
+    NSLog(@"cost time is %f", ts);
+    if (!(m_pssl = SSL_new(m_pctx))) {
+        printf("Error creating an SSL contexxt\n");
+        return -5;
+    }
     SSL_set_bio(m_pssl, bio, bio);
+#endif
     int slRc = SSL_connect(m_pssl);
     if (slRc <= 0) {
         printf("Error connecting SSL object>>%d\n", slRc);
         return -6;
     }
-//    int ret = pushmessage(token,payloadString);
+    
     int ret = [self pushmessage:token payload:payloadString];
     
     printf("push ret[%d]\n", ret);
+    close(sock);
     [self reset];
+    
     return 0;
 }
 
@@ -339,27 +421,6 @@ void token2bytes(const char *token, char *bytes){
     }
     
     [request setHTTPBody:[httpBody dataUsingEncoding:NSUTF8StringEncoding]];
-    
-
-//    if ([NSURLConnection canHandleRequest:request]) {
-//        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
-//            @try {
-//                id jsonObject = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
-//                if ([jsonObject isKindOfClass:[NSDictionary class]]) {
-//                    NSDictionary *jsonDic = (NSDictionary *)jsonObject;
-//                    NSInteger statusCode = [(NSString *)[jsonDic objectForKey:@"ret_code"] integerValue];
-//                    NSString *statusMessage = (NSString *)[jsonDic objectForKey:@"err_msg"];
-//                    
-//                    completion(statusMessage, statusCode);
-//                }
-//            } @catch (NSException *exception) {
-//                completion(@"XG Push Server occurs exception!", -1);
-//            } @finally {
-//            }
-//        }];
-//    } else {
-//        completion(@"XG Push Server occurs exception!", -1);
-//    }
     
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         @try {
