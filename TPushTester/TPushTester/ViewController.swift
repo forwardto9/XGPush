@@ -230,9 +230,11 @@ class ViewController: NSViewController, NSTextFieldDelegate {
                             } else if distributionHostButton.state == NSOnState {
                                 enviromentString = "Distribution"
                             }
+                            let shellResult = self.convertP12ToPEM(pushCertificatePath, password: pushCertificatePasswd, pemEnviromentString:enviromentString)
+                            if shellResult.exitCode == 0 {
+                                showAlert("Certificate is OK,Push one message!\nCreate XG Push Certificate done!")
+                            }
                             
-                            self.convertP12ToPEM(pushCertificatePath, password: pushCertificatePasswd, pemEnviromentString:enviromentString)
-                            showAlert("Certificate is OK,Push one message!\nCreate XG Push Certificate done!")
                         } else {
                             showAlert("APNS Error!")
                         }
@@ -533,13 +535,13 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         pushCertificatePathField.placeholderString = nil
     }
     
-    func convertP12ToPEM(_ filePath:String, password:String, pemEnviromentString:String) -> Void {
+    func convertP12ToPEM(_ filePath:String, password:String, pemEnviromentString:String) -> (output: String, exitCode: Int32) {
         let pemOutPath = (filePath as NSString).deletingLastPathComponent
         var shellString = "openssl pkcs12 -in " + filePath + " -out " + pemOutPath + "/XG" + pemEnviromentString + "PushCertificate.pem -nodes "
         if !password.isEmpty {
             shellString = shellString + "-passin pass:" + password
         }
-        shell(shellString)
+        return shell(shellString)
     }
 }
 
