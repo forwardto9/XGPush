@@ -46,32 +46,32 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     
     
     
-    private var socket:otSocket = nil
-    private var context:SSLContext!
-    private var keychain:SecKeychain?
-    private var certificate:SecCertificateRef?
-    private var identity:SecIdentity?
-    private var pushDeviceToken:String!
+    fileprivate var socket:otSocket? = nil
+    fileprivate var context:SSLContext!
+    fileprivate var keychain:SecKeychain?
+    fileprivate var certificate:SecCertificate?
+    fileprivate var identity:SecIdentity?
+    fileprivate var pushDeviceToken:String!
 //    private var pushPayload:String     = ""
-    private var pushMessage:String     = ""
-    private var pushCertificatePath    = ""
-    private var pushCertificatePasswd  = ""
-    private var pushHost               = ""
+    fileprivate var pushMessage:String     = ""
+    fileprivate var pushCertificatePath    = ""
+    fileprivate var pushCertificatePasswd  = ""
+    fileprivate var pushHost               = ""
     // 1: distribution 2:developement
-    private var apnsPushEnviromentIntValue:UInt = 2
-    private var accessID:String!
-    private var secretKey:String!
+    fileprivate var apnsPushEnviromentIntValue:UInt = 2
+    fileprivate var accessID:String!
+    fileprivate var secretKey:String!
     
     // 2: distribution 1:developement
-    private var xgPushEnviromentIntValue:UInt = 1
-    private var xgPushManagerQQ:String!
-    private var mouseTrackingArea:NSTrackingArea!
+    fileprivate var xgPushEnviromentIntValue:UInt = 1
+    fileprivate var xgPushManagerQQ:String!
+    fileprivate var mouseTrackingArea:NSTrackingArea!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        certificatePasswordTextField.hidden = true
-        certificatePasswordLabel.hidden     = true
-        xgTestCheckButton.hidden            = true
+        certificatePasswordTextField.isHidden = true
+        certificatePasswordLabel.isHidden     = true
+        xgTestCheckButton.isHidden            = true
         if developerHostButton.state == 1 {
             pushHost = developerPushHost
         }
@@ -81,21 +81,21 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         
         xgPushButtonDisplay()
         
-        mouseTrackingArea = NSTrackingArea(rect: chooseCertificateButton.frame, options:[.MouseEnteredAndExited, .ActiveAlways], owner: self, userInfo: ["key":"value"])
+        mouseTrackingArea = NSTrackingArea(rect: chooseCertificateButton.frame, options:[.mouseEnteredAndExited, .activeAlways], owner: self, userInfo: ["key":"value"])
         self.view.addTrackingArea(mouseTrackingArea)
-         pushDeviceToken = NSUserDefaults.standardUserDefaults().objectForKey(XGiOSToken) as? String
+         pushDeviceToken = UserDefaults.standard.object(forKey: XGiOSToken) as? String
         if pushDeviceToken != nil {
             pushTokenTextField.stringValue = pushDeviceToken
         }
-        accessID = NSUserDefaults.standardUserDefaults().objectForKey(XGAccessIDKey) as? String
+        accessID = UserDefaults.standard.object(forKey: XGAccessIDKey) as? String
         if accessID != nil {
             accessIDTextField.stringValue = accessID
         }
-        secretKey = NSUserDefaults.standardUserDefaults().objectForKey(XGSecretKey) as? String
+        secretKey = UserDefaults.standard.object(forKey: XGSecretKey) as? String
         if secretKey != nil {
             secretKeyTextFiled.stringValue = secretKey
         }
-        xgPushManagerQQ = NSUserDefaults.standardUserDefaults().objectForKey(XGAccountQQKey) as? String
+        xgPushManagerQQ = UserDefaults.standard.object(forKey: XGAccountQQKey) as? String
         if xgPushManagerQQ != nil {
             managerQQTextField.stringValue = xgPushManagerQQ
         }
@@ -117,13 +117,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         exit(0)
     }
     
-    override var representedObject: AnyObject? {
-        didSet {
-        // Update the view, if already loaded.
-        }
-    }
-    
-    @IBAction func uploadCertificate(sender: NSButton) {
+    @IBAction func uploadCertificate(_ sender: NSButton) {
         let panel = NSOpenPanel()
         panel.message = ""
         panel.prompt = "OK"
@@ -133,34 +127,34 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         var path:NSString = ""
         let result = panel.runModal()
         if result == NSFileHandlingPanelOKButton {
-            path = (panel.URL?.path)!
+            path = (panel.url?.path)! as NSString
             
             // 判断是否选了文件
             var isDirectory:ObjCBool = false
-            if NSFileManager.defaultManager().fileExistsAtPath(path as String, isDirectory: &isDirectory) {
-                if Bool(isDirectory) {
+            if FileManager.default.fileExists(atPath: path as String, isDirectory: &isDirectory) {
+                if isDirectory.boolValue == true {
                     return
                 }
             }
             pushCertificatePathField.stringValue = path as String
             pushCertificatePath = path as String
-            let type = PushCertificateFileType.init(rawValue: path.pathExtension.uppercaseString)!
+            let type = PushCertificateFileType.init(rawValue: path.pathExtension.uppercased())!
             if apnsServerButton.state == NSOnState {
                     switch type {
                     case .PEM, .CER:
-                        certificatePasswordTextField.hidden = true
-                        certificatePasswordLabel.hidden     = true
+                        certificatePasswordTextField.isHidden = true
+                        certificatePasswordLabel.isHidden     = true
                         break
                         
                     case .P12:
-                        certificatePasswordTextField.hidden = false
-                        certificatePasswordLabel.hidden     = false
+                        certificatePasswordTextField.isHidden = false
+                        certificatePasswordLabel.isHidden     = false
                         break
                     }
             } else if xgServerButton.state == NSOnState {
                 if type == .P12 {
-                    certificatePasswordTextField.hidden = false
-                    certificatePasswordLabel.hidden     = false
+                    certificatePasswordTextField.isHidden = false
+                    certificatePasswordLabel.isHidden     = false
                 } else if type == .PEM {
                 } else {
                     showAlert("Invalid certificate!")
@@ -171,7 +165,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         
     }
 
-    @IBAction func pushMessage(sender: NSButton) {
+    @IBAction func pushMessage(_ sender: NSButton) {
         if pushDeviceToken.characters.count != deviceTokenLength {
             showAlert("Token string occurs error!")
             return;
@@ -183,10 +177,10 @@ class ViewController: NSViewController, NSTextFieldDelegate {
             showAlert("Push message is empty!")
             return;
         } else {
-            let pushMessageDate = NSDate()
-            let dateFormatter = NSDateFormatter()
+            let pushMessageDate = Date()
+            let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-            let messageDateString = dateFormatter.stringFromDate(pushMessageDate)
+            let messageDateString = dateFormatter.string(from: pushMessageDate)
             let message = messageDateString + "\\n" + pushMessage
             pushPayload = "{\"aps\":{\"alert\":\"" + message + "\",\"badge\":1}}"
         }
@@ -200,14 +194,14 @@ class ViewController: NSViewController, NSTextFieldDelegate {
             
             let fileExtension = (pushCertificatePath as NSString).pathExtension
             
-            if let type = PushCertificateFileType.init(rawValue: fileExtension.uppercaseString)  {
+            if let type = PushCertificateFileType.init(rawValue: fileExtension.uppercased())  {
                 switch type {
                 case .PEM:
                     let pusher = OCPush()
                     
                     // delete by uweiyuan@2016-12-12
 //                    let result = pusher.pushMessageToDeviceToken(pushDeviceToken, payload: pushPayload, fromHost: (pushHost + ":" + String(pushPort)), withPEMFile: pushCertificatePath)
-                    let result = pusher.pushMessageToDeviceToken(pushDeviceToken, payload: pushPayload, fromHost: pushHost, port: UInt(pushPort), withPEMFile: pushCertificatePath)
+                    let result = pusher.pushMessage(toDeviceToken: pushDeviceToken, payload: pushPayload, fromHost: pushHost, port: UInt(pushPort), withPEMFile: pushCertificatePath)
                     if result < -2 {
                         showAlert("Network connection problem!")
                     }
@@ -228,7 +222,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
                 case .P12:
                     let connectResult = connect()
                     if connectResult == noErr {
-                        let pushResult =  OCPush.pushToDeviceToken(pushDeviceToken, payload: pushPayload, context: context)
+                        let pushResult =  OCPush.push(toDeviceToken: pushDeviceToken, payload: pushPayload, context: context)
                         if pushResult == noErr {
                             var enviromentString = ""
                             if developerHostButton.state == NSOnState {
@@ -251,7 +245,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
                 case .CER:
                     let connectResult = connect()
                     if connectResult == noErr {
-                        OCPush.pushToDeviceToken(pushDeviceToken, payload: pushPayload, context: context)
+                        OCPush.push(toDeviceToken: pushDeviceToken, payload: pushPayload, context: context)
                         showAlert("Certificate is OK,Push one message!")
                     }
                     break
@@ -296,16 +290,19 @@ class ViewController: NSViewController, NSTextFieldDelegate {
 //            }
             
             CertificaterUploader.upload(path, accessID: accessID, xgPushEnviromentIntValue: xgPushEnviromentIntValue, xgPushManagerQQ: xgPushManagerQQ, xgServerState: self.xgTestCheckButton.state, completionHandler: { (result, host, info) in
-                if result.boolValue {
-                    OCPush.pushFromXGServerWithDeviceToken(self.pushDeviceToken, accessID: self.accessID, secretKey: self.secretKey, payload:pushPayload, enviroment:String(self.apnsPushEnviromentIntValue), server: host, completion: { (message, code) in
+                if result {
+                    OCPush.pushFromXGServer(withDeviceToken: self.pushDeviceToken, accessID: self.accessID, secretKey: self.secretKey, payload:pushPayload, enviroment:String(self.apnsPushEnviromentIntValue), server: host, completion: { (message, code) in
                         if code == 0 {
                             self.showAlert("XG Push a message done!")
                         } else {
-                            if message.containsString("证书") {
-                                self.showAlert("证书存在问题，请检查前端证书是否正确")
-                            } else {
-                                self.showAlert(message)
+                            if message != nil {
+                                if message!.contains("证书") == true {
+                                    self.showAlert("证书存在问题，请检查前端证书是否正确")
+                                } else {
+                                    self.showAlert(message!)
+                                }
                             }
+                            
                             
                         }
                     })
@@ -316,7 +313,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         }
     }
     
-    @IBAction func chooseHost(sender: NSButton) {
+    @IBAction func chooseHost(_ sender: NSButton) {
         if sender == developerHostButton {
             pushHost = developerPushHost
             apnsPushEnviromentIntValue = 2
@@ -330,10 +327,10 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         
     }
     
-    @IBAction func chooseServer(sender: NSButton) {
+    @IBAction func chooseServer(_ sender: NSButton) {
         pushCertificatePathField.stringValue = ""
-        certificatePasswordLabel.hidden      = true
-        certificatePasswordTextField.hidden  = true
+        certificatePasswordLabel.isHidden      = true
+        certificatePasswordTextField.isHidden  = true
         
         xgPushButtonDisplay()
     }
@@ -350,10 +347,16 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         
         
         // Create new SSL context.
-        context = SSLCreateContext(kCFAllocatorDefault, SSLProtocolSide.ClientSide, SSLConnectionType.StreamType);
+        context = SSLCreateContext(kCFAllocatorDefault, SSLProtocolSide.clientSide, SSLConnectionType.streamType);
         
         // Set callback functions for SSL context.
-        result = SSLSetIOFuncs(context, SocketRead, SocketWrite);
+        let read:SSLReadFunc = { con, data, length in
+            IOSocket.socketReadOC(con, data: data, length: length)
+        }
+        let write:SSLWriteFunc = { con, data, length in
+            IOSocket.socketWriteOC(con, data: data, length: length)
+        }
+        result = SSLSetIOFuncs(context, read, write);
         NSLog("SSLSetIOFuncs(): %d", result);
         
         // Set SSL context connection.
@@ -367,35 +370,41 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         
         
         let fileExtension = (pushCertificatePath as NSString).pathExtension
-        let type = PushCertificateFileType.init(rawValue: fileExtension.uppercaseString)
+        let type = PushCertificateFileType.init(rawValue: fileExtension.uppercased())
         if type == PushCertificateFileType.CER {
             // Open keychain.
             result = SecKeychainCopyDefault(&keychain);
             NSLog("SecKeychainOpen(): %d", result);
         }
         
-        var certificates:CFArrayRef!
+        var certificates:CFArray!
+        
         if type == PushCertificateFileType.CER {
-            let certificateData = NSData(contentsOfFile: pushCertificatePath);
-            self.certificate = SecCertificateCreateWithData(kCFAllocatorDefault, certificateData!)
+            let certificateData = try? Data(contentsOf: URL(fileURLWithPath: pushCertificatePath));
+            self.certificate = SecCertificateCreateWithData(kCFAllocatorDefault, certificateData! as CFData)
             if self.certificate == nil {
                 return errSecCertificateCannotOperate
             }
             // Create identity.
             result = SecIdentityCreateWithCertificate(keychain, certificate!, &identity);
             NSLog("SecIdentityCreateWithCertificate(): %d", result);
-            var id:UnsafePointer<Void> = UnsafePointer(Unmanaged.passUnretained(identity!).toOpaque())
             
+            let cerData = Unmanaged.passUnretained(identity!).toOpaque()
+            let certificateDatas:CFMutableArray = CFArrayCreateMutable(kCFAllocatorDefault , 0, nil)
+            CFArraySetValueAtIndex(certificateDatas, 0, cerData)
+            certificates = certificateDatas as CFArray
+            
+//            var id:UnsafeRawPointer = UnsafePointer(Unmanaged.passUnretained(identity!).toOpaque())
             // Set client certificate.
-            certificates = CFArrayCreate(nil, &id, 1, nil)
+//            certificates = CFArrayCreate(nil, &id, 1, nil)
         }
         
         if type == PushCertificateFileType.P12 {
             // Set client certificate.
-            let identity = OCPush.getSecIdentityRefFromFile(pushCertificatePath, password: pushCertificatePasswd, statusCode: &result)
+            let identity = OCPush.getSecIdentityRef(fromFile: pushCertificatePath, password: pushCertificatePasswd, statusCode: &result)
             
             if result == noErr {
-                certificates = identity.takeRetainedValue()
+                certificates = identity?.takeRetainedValue()
             } else {
                 if result == errSecPkcs12VerifyFailure {
                     showAlert("Incorrect password for PKCS12!")
@@ -432,8 +441,8 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         // Close connection to server.
         OCPush.closeSocket(socket)
     }
-    func showAlert(message:String) -> Void {
-		dispatch_async(dispatch_get_main_queue()) {
+    func showAlert(_ message:String) -> Void {
+		DispatchQueue.main.async {
 	        let alert = NSAlert()
 	        alert.messageText = message
 	        alert.runModal()
@@ -441,15 +450,15 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     }
     
     // MARK: NSTextFiledDelegate
-    override func controlTextDidChange(obj: NSNotification) {
+    override func controlTextDidChange(_ obj: Notification) {
         let textField:NSTextField = obj.object as! NSTextField
         if textField == pushMessageTextField {
             pushMessage = textField.stringValue
         }
         if textField == pushTokenTextField {
             pushDeviceToken = textField.stringValue
-            NSUserDefaults.standardUserDefaults().setObject(pushDeviceToken, forKey: XGiOSToken)
-            NSUserDefaults.standardUserDefaults().synchronize()
+            UserDefaults.standard.set(pushDeviceToken, forKey: XGiOSToken)
+            UserDefaults.standard.synchronize()
         }
         
         if textField == certificatePasswordTextField {
@@ -458,28 +467,28 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         
         if textField == accessIDTextField {
             accessID = textField.stringValue
-            NSUserDefaults.standardUserDefaults().setObject(accessID, forKey: XGAccessIDKey)
-            NSUserDefaults.standardUserDefaults().synchronize()
+            UserDefaults.standard.set(accessID, forKey: XGAccessIDKey)
+            UserDefaults.standard.synchronize()
         }
         if textField == secretKeyTextFiled {
             secretKey = textField.stringValue
-            NSUserDefaults.standardUserDefaults().setObject(secretKey, forKey: XGSecretKey)
-            NSUserDefaults.standardUserDefaults().synchronize()
+            UserDefaults.standard.set(secretKey, forKey: XGSecretKey)
+            UserDefaults.standard.synchronize()
         }
         if textField == managerQQTextField {
             xgPushManagerQQ = textField.stringValue
-            NSUserDefaults.standardUserDefaults().setObject(xgPushManagerQQ, forKey: XGAccountQQKey)
-            NSUserDefaults.standardUserDefaults().synchronize()
+            UserDefaults.standard.set(xgPushManagerQQ, forKey: XGAccountQQKey)
+            UserDefaults.standard.synchronize()
         }
         
     }
     
     
     
-    func shell(input: String) -> (output: String, exitCode: Int32) {
+    func shell(_ input: String) -> (output: String, exitCode: Int32) {
         let arguments = input.characters.split { $0 == " " }.map(String.init)
         
-        let task = NSTask()
+        let task = Process()
         task.launchPath = "/usr/bin/env"
         task.arguments = arguments
         task.environment = [
@@ -487,36 +496,36 @@ class ViewController: NSViewController, NSTextFieldDelegate {
             "HOME" : NSHomeDirectory()
         ]
         
-        let pipe = NSPipe()
+        let pipe = Pipe()
         task.standardOutput = pipe
         task.launch()
         task.waitUntilExit()
         
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output: String = NSString(data: data, encoding: NSUTF8StringEncoding) as! String
+        let output: String = NSString(data: data, encoding: String.Encoding.utf8.rawValue) as! String
         
         return (output, task.terminationStatus)
     }
     
 
     func xgPushButtonDisplay() -> Void {
-        let state = Bool.init(apnsServerButton.state)
-        acccessIDLabel.hidden     = state
-        accessIDTextField.hidden  = state
-        secretKeyLabel.hidden     = state
-        secretKeyTextFiled.hidden = state
-        managerQQLabel.hidden     = state
-        managerQQTextField.hidden = state
-        xgTestCheckButton.hidden  = state
-        certificateTitleLabel.hidden = !state
-        pushCertificatePathField.hidden = !state
-        chooseCertificateButton.hidden  = !state
+        let state = Bool.init(NSNumber(value:apnsServerButton.state))
+        acccessIDLabel.isHidden     = state
+        accessIDTextField.isHidden  = state
+        secretKeyLabel.isHidden     = state
+        secretKeyTextFiled.isHidden = state
+        managerQQLabel.isHidden     = state
+        managerQQTextField.isHidden = state
+        xgTestCheckButton.isHidden  = state
+        certificateTitleLabel.isHidden = !state
+        pushCertificatePathField.isHidden = !state
+        chooseCertificateButton.isHidden  = !state
     }
     
-    func md5(string: String) -> String {
-        var digest:[UInt8] = [UInt8](count:Int(CC_MD5_DIGEST_LENGTH), repeatedValue:0)
-        let data = (string as NSString).dataUsingEncoding(NSUTF8StringEncoding)
-        CC_MD5(data!.bytes, CC_LONG(data!.length), &digest)
+    func md5(_ string: String) -> String {
+        var digest:[UInt8] = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+        let data = (string as NSString).data(using: String.Encoding.utf8.rawValue)
+        CC_MD5((data! as NSData).bytes, CC_LONG(data!.count), &digest)
         
         var digestHex = ""
         for index in 0..<Int(CC_MD5_DIGEST_LENGTH) {
@@ -527,19 +536,19 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     }
     
     
-    override func mouseEntered(theEvent: NSEvent) {
+    override func mouseEntered(with theEvent: NSEvent) {
         print("area rect = \(NSEvent.mouseLocation())")
         if pushCertificatePath.characters.count == 0 {
             pushCertificatePathField.placeholderString = "Upload your push certificate"
         }
         
     }
-    override func mouseExited(theEvent: NSEvent) {
+    override func mouseExited(with theEvent: NSEvent) {
         pushCertificatePathField.placeholderString = nil
     }
     
-    func convertP12ToPEM(filePath:String, password:String, pemEnviromentString:String) -> Void {
-        let pemOutPath = (filePath as NSString).stringByDeletingLastPathComponent
+    func convertP12ToPEM(_ filePath:String, password:String, pemEnviromentString:String) -> Void {
+        let pemOutPath = (filePath as NSString).deletingLastPathComponent
         var shellString = "openssl pkcs12 -in " + filePath + " -out " + pemOutPath + "/XG" + pemEnviromentString + "PushCertificate.pem -nodes "
         if !password.isEmpty {
             shellString = shellString + "-passin pass:" + password

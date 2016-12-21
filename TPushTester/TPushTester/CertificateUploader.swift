@@ -8,8 +8,8 @@
 
 import Foundation
 
-public class CertificaterUploader:NSObject {
-    class func upload(path:String, accessID:String, xgPushEnviromentIntValue:UInt, xgPushManagerQQ:String, xgServerState:Int, completionHandler:(result:Bool, host:String?, info:String?) -> Void) -> Void {
+open class CertificaterUploader:NSObject {
+    class func upload(_ path:String, accessID:String, xgPushEnviromentIntValue:UInt, xgPushManagerQQ:String, xgServerState:Int, completionHandler:@escaping (_ result:Bool, _ host:String?, _ info:String?) -> Void) -> Void {
         var xgHost:String = ""
         if xgServerState == 1 {
             xgHost = "testopenapi.xg.qq.com"
@@ -17,19 +17,19 @@ public class CertificaterUploader:NSObject {
         } else {
             xgHost = "openapi.xg.qq.com"
         }
-        completionHandler(result: true, host: xgHost, info: "OK")
+        completionHandler(true, xgHost, "OK")
         
         return
         
         
         
-        let certificateData = NSData.init(contentsOfFile: path as String)?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithCarriageReturn)
+        let certificateData = (try? Data.init(contentsOf: URL(fileURLWithPath: path as String)))?.base64EncodedString(options: NSData.Base64EncodingOptions.endLineWithCarriageReturn)
         let ts = String(time(nil))
         let type = String(xgPushEnviromentIntValue)
         var sign  = "!#dataeye*&@!23ne5=^82"
         let source = "dataeye" // defualt, juhe, cmstop,etc.
         var paramsWithOutCertificate = ["app_id":accessID, "type":type, "qq":xgPushManagerQQ, "source":source, "ts":ts]
-        let p  = paramsWithOutCertificate.sort {$0.0 < $1.0}
+        let p  = paramsWithOutCertificate.sorted {$0.0 < $1.0}
         for (k, v) in p {
             sign = sign + k + "=" + v
         }
@@ -38,21 +38,21 @@ public class CertificaterUploader:NSObject {
         paramsWithOutCertificate["sig"] = sig
         paramsWithOutCertificate["certfile"] = certificateData!
         let xgCertificateUploadURL = "http://api.xg.qq.com/certfile/update_apns_cert_pub"
-        let request = NSMutableURLRequest(URL: NSURL(string: xgCertificateUploadURL)!, cachePolicy: NSURLRequestCachePolicy.UseProtocolCachePolicy, timeoutInterval: 30)
-        request.HTTPMethod  = "POST"
+        let request = NSMutableURLRequest(url: URL(string: xgCertificateUploadURL)!, cachePolicy: NSURLRequest.CachePolicy.useProtocolCachePolicy, timeoutInterval: 30)
+        request.httpMethod  = "POST"
         var parameterString = ""
         for (k, v) in paramsWithOutCertificate {
             parameterString = parameterString + k + "=" + v + "&"
         }
         
-        parameterString = (parameterString as NSString).substringToIndex(parameterString.characters.count - 1)
+        parameterString = (parameterString as NSString).substring(to: parameterString.characters.count - 1)
+        request.httpBody = parameterString.data(using: String.Encoding.utf8)
         
-        request.HTTPBody = parameterString.dataUsingEncoding(NSUTF8StringEncoding)
-        NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, error) in
+        URLSession.shared.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
             if data != nil {
-                let returnData = try! NSJSONSerialization.JSONObjectWithData(data!, options:.MutableContainers)
+                let returnData = try! JSONSerialization.jsonObject(with: data!, options:.mutableContainers) as! [String:Any]
                 var uploadResultInfo = ""
-                if (returnData["code"] as! NSNumber).integerValue == 0 {
+                if (returnData["code"] as! NSNumber).intValue == 0 {
                     var xgHost:String!
                     if xgServerState == 1 {
                         xgHost = "testopenapi.xg.qq.com"
@@ -60,10 +60,10 @@ public class CertificaterUploader:NSObject {
                     } else {
                         xgHost = "openapi.xg.qq.com"
                     }
-                    completionHandler(result: true, host: xgHost, info: "OK")
+                    completionHandler(true, xgHost, "OK")
                 } else {
                     uploadResultInfo = returnData["info"] as! String
-                    completionHandler(result: false, host: nil, info: uploadResultInfo)
+                    completionHandler(false, nil, uploadResultInfo)
                 }
             }
         }).resume()
@@ -71,10 +71,10 @@ public class CertificaterUploader:NSObject {
 
 
 
-class func md5(string: String) -> String {
-    var digest:[UInt8] = [UInt8](count:Int(CC_MD5_DIGEST_LENGTH), repeatedValue:0)
-    let data = (string as NSString).dataUsingEncoding(NSUTF8StringEncoding)
-    CC_MD5(data!.bytes, CC_LONG(data!.length), &digest)
+class func md5(_ string: String) -> String {
+    var digest:[UInt8] = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+    let data = (string as NSString).data(using: String.Encoding.utf8.rawValue)
+    CC_MD5((data! as NSData).bytes, CC_LONG(data!.count), &digest)
     
     var digestHex = ""
     for index in 0..<Int(CC_MD5_DIGEST_LENGTH) {

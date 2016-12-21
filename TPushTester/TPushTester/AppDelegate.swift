@@ -16,17 +16,17 @@ let XGiOSToken     = "XG.iOS.Token"
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-     private  var t:NSWindowController!
+     fileprivate  var t:NSWindowController!
     
     
-    func applicationDidFinishLaunching(aNotification: NSNotification) {
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
-        let app = NSApplication.sharedApplication()
+        let app = NSApplication.shared()
         let menu = app.mainMenu
-        let items = menu?.itemArray
+        let items = menu?.items
         for it in items! {
             let m = it.submenu
-            let i = m?.itemArray
+            let i = m?.items
             for item in i! {
                 if item.title == "About TPushTester" {
                     item.target = self;
@@ -35,10 +35,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
-        MTAPro.startWithAppKey("INV5D6C3E7NR")
+        MTAPro.start(withAppKey: "INV5D6C3E7NR")
     }
 
-    func applicationWillTerminate(aNotification: NSNotification) {
+    func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
     
