@@ -522,20 +522,6 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         chooseCertificateButton.isHidden  = !state
     }
     
-    func md5(_ string: String) -> String {
-        var digest:[UInt8] = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
-        let data = (string as NSString).data(using: String.Encoding.utf8.rawValue)
-        CC_MD5((data! as NSData).bytes, CC_LONG(data!.count), &digest)
-        
-        var digestHex = ""
-        for index in 0..<Int(CC_MD5_DIGEST_LENGTH) {
-            digestHex += String(format: "%02x", digest[index])
-        }
-        
-        return digestHex
-    }
-    
-    
     override func mouseEntered(with theEvent: NSEvent) {
         print("area rect = \(NSEvent.mouseLocation())")
         if pushCertificatePath.characters.count == 0 {
