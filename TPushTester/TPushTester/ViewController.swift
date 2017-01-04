@@ -13,6 +13,8 @@ let developerPushHost  = "gateway.sandbox.push.apple.com"
 let distributePushHost = "gateway.push.apple.com"
 let pushPort           = 2195
 let deviceTokenLength  = 64
+let accessIDLength = 10
+let secretKeyLength = 32
 
 enum PushCertificateFileType:String {
     case PEM
@@ -166,11 +168,24 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     }
 
     @IBAction func pushMessage(_ sender: NSButton) {
+        
+        self.pushDeviceToken = self.pushDeviceToken.replacingOccurrences(of:" ",with:"")
         if pushDeviceToken.characters.count != deviceTokenLength {
             showAlert("Token string occurs error!")
             return;
         }
+        self.accessID = self.accessID.replacingOccurrences(of:" ",with:"")
+        if accessID.characters.count != accessIDLength {
+            showAlert("accessID string occurs error!")
+            return;
+        }
         
+        self.secretKey = self.secretKey.replacingOccurrences(of:" ",with:"")
+        if secretKey.characters.count != secretKeyLength {
+            showAlert("secretKey string occurs error!")
+            return;
+        }
+
         var pushPayload:String = ""
         
         if pushMessage.characters.count == 0 {
